@@ -1,11 +1,14 @@
 package checkdigitcli.command;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +26,7 @@ public class GenerateCheckDigits implements Runnable {
 	private File inputFile;
 
 	@Option(names = { "-p", "-payloads" }, required = false)
-	private List<String> manualPayloads;
+	private String[] manualPayloads;
 
 	@Option(names = { "-of", "-outputFile" }, required = false)
 	private File outputFile;
@@ -34,8 +37,9 @@ public class GenerateCheckDigits implements Runnable {
 	public void run() {
 		try {
 			Algorithm algorithm = getAlgorithmInstance(algorithmName);
-			List<String> payloads = collectPayloads(inputFile, manualPayloads);
-			applyAlgorithm(algorithm, payloads);
+			Stream<String> payloads = collectPayloads(inputFile, manualPayloads);
+			String[][] digits = applyAlgorithm(algorithm, payloads);
+			displayResults(digits, outputFile);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -43,23 +47,89 @@ public class GenerateCheckDigits implements Runnable {
 		} catch (CheckDigitCLIException e) {
 			System.err.println(e.getMessage());
 			return;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
-	private void applyAlgorithm(Algorithm algorithm, List<String> payloads) {
+	private void displayResults(String[][] digits, File outputFile) throws IOException, InterruptedException {
 
+		if (outputFile != null) {
+			printToOutputFile(digits, outputFile);
+		} else {
+			printToConsole(digits, outputFile);
+		}
+
+	}
+
+	private void printToOutputFile(String[][] digits, File outputFile) throws IOException, InterruptedException {
+
+		System.out.println("Writing to output file " + outputFile.getAbsolutePath());
+		System.out.print("Progress: 0/" + digits.length);
+		
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+			
+			writer.append("==START==" + System.lineSeparator());			
+			for (int i = 0; i < digits.length; i++) {
+				String payload = digits[i][0];
+				String digit = digits[i][1];
+
+				writer.append(payload + " " + digit + System.lineSeparator());
+				System.out.print("\rProgress: " + (i + 1) +  "/" + digits.length);
+			}
+			writer.append("==END==");
+			
+			writer.flush();
+			System.out.println("\nDone!");
+		}
+	}
+
+	private void printToConsole(String[][] digits, File outputFile) {
+		
+		System.out.println("Results:");
+		System.out.println("==START==");
+		for (int i = 0; i < digits.length; i++) {
+			String payload = digits[i][0];
+			String digit = digits[i][1];
+
+			System.out.println(payload + " " + digit);
+		}
+		System.out.println("==END==");
+	}
+
+	private String[][] applyAlgorithm(Algorithm algorithm, Stream<String> sPayloads) {
+
+		List<String> lPayloads = sPayloads.collect(Collectors.toList());
+
+		// Generate preview
 		final int numberToPreview = 10;
 		String payloadsPreview = "";
-		for (int i = 0; i < (payloads.size() < numberToPreview ? payloads.size() : numberToPreview); i++) {
-			payloadsPreview = payloadsPreview + (payloadsPreview.equals("") ? "" : " , ") + payloads.get(i);
+		for (int i = 0; i < (lPayloads.size() < numberToPreview ? lPayloads.size() : numberToPreview); i++) {
+			payloadsPreview += (payloadsPreview.equals("") ? "" : " , ") + lPayloads.get(i);
 		}
-		if(payloads.size() > numberToPreview) 
-			payloadsPreview += " ... (" + (payloads.size() - numberToPreview) + " more)";
-			
-		
-		System.out.println("Using " + algorithm.getName() + " algorithm");
-		System.out.println("Found " + payloads.size() + " payloads: " + payloadsPreview);
+		if (lPayloads.size() > numberToPreview)
+			payloadsPreview += " ... (" + (lPayloads.size() - numberToPreview) + " more)";
 
+		// Show preview
+		System.out.println("Using " + algorithm.getName() + " algorithm");
+		System.out.println("Found " + lPayloads.size() + " payloads: " + payloadsPreview);
+
+		// Apply algorithm to all
+		String[][] digits = new String[lPayloads.size()][2];
+		for (int i = 0; i < lPayloads.size(); i++) {
+			String p = lPayloads.get(i);
+			int digit = algorithm.generate(p);
+			digits[i][0] = p;
+			digits[i][1] = String.valueOf(digit);
+
+			// 0 - [payload][check digit]
+			// 1 - [payload][check digit]
+			// 2 - [payload][check digit]
+			// ^ iterate this
+		}
+
+		return digits;
 	}
 
 	private Algorithm getAlgorithmInstance(String algorithmName) throws CheckDigitCLIException {
@@ -74,7 +144,7 @@ public class GenerateCheckDigits implements Runnable {
 		throw new CheckDigitCLIException("No algorithm with name " + algorithmName);
 	}
 
-	private List<String> collectPayloads(File inputFile, List<String> manualPayloads)
+	private Stream<String> collectPayloads(File inputFile, String[] manualPayloads)
 			throws IOException, CheckDigitCLIException {
 
 		Stream<String> filePayloads = Stream.empty();
@@ -83,14 +153,13 @@ public class GenerateCheckDigits implements Runnable {
 
 		Stream<String> sManualPayloads = Stream.empty();
 		if (manualPayloads != null) {
-			sManualPayloads = manualPayloads.stream();
+			sManualPayloads = Stream.of(manualPayloads);
 		}
 
-		return Stream.concat(filePayloads, sManualPayloads).collect(Collectors.toList());
+		return Stream.concat(filePayloads, sManualPayloads);
 	}
 
-	private List<String> getFilePayloads(File file)
-			throws CheckDigitCLIException, FileNotFoundException, IOException {
+	private List<String> getFilePayloads(File file) throws CheckDigitCLIException, FileNotFoundException, IOException {
 
 		if (!inputFile.exists())
 			throw new CheckDigitCLIException("Input file " + inputFile.getAbsolutePath() + " does not exist.");
