@@ -27,7 +27,12 @@ public class GenerateCheckDigits implements Runnable {
 	private String algorithmName;
 
 	public void run() {
-		List<String> payloads = collectPayloads(inputFile, manualPayloads);
+		try {
+			List<String> payloads = collectPayloads(inputFile, manualPayloads);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private List<String> collectPayloads(File inputFile, List<String> manualPayloads) throws IOException {
