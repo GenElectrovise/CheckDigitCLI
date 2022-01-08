@@ -3,7 +3,14 @@ package checkdigitcli.algorithm;
 public class Luhn implements Algorithm {
 
 	public static void main(String[] args) {
-		System.out.println(new Luhn().generate("4502984895890288945890528934--8259057-8778425547425823468568964523469589282869gh34289342gh89gh82h8934g2h89gh8929gh0g3hhg3892h8h89"));
+		System.out.println(new Luhn().generate("7578527827894527894789237845785478923466434565689625896845686825682346824968"));
+		System.out.println(new Luhn().generate("6"));
+		System.out.println(new Luhn().generate("34373957395"));
+	}
+	
+	@Override
+	public String getName() {
+		return "luhn";
 	}
 
 	@Override

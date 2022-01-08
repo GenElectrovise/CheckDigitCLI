@@ -9,6 +9,8 @@ public class Algorithms {
 
 	static {
 		ALGORITHMS = new HashMap<>();
-		ALGORITHMS.put("luhn", new Luhn());
+		
+		Luhn luhn = new Luhn();
+		ALGORITHMS.put(luhn.getName(), luhn);
 	}
 }

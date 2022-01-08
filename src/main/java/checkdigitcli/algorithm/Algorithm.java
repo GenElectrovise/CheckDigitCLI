@@ -4,4 +4,5 @@ public interface Algorithm {
 
 	int generate(String input);
 
+	String getName();
 }
