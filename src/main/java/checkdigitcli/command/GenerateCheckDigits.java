@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command
+@Command(name = "generateCheckDigits")
 public class GenerateCheckDigits implements Runnable {
 
 	@Option(names = { "-if", "-inputFile" }, required = false)

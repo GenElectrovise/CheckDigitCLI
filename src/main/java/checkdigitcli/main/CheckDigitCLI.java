@@ -46,13 +46,21 @@ public class CheckDigitCLI {
 	}
 
 	private static void pollCommand() {
-		String commandIn = System.console().readLine();
-		String[] argsIn = commandIn.split(" ");
-		String[] argsNoCommand = new String[argsIn.length - 1];
+		System.out.println("\n");
+		String[] command = System.console().readLine().split(" ");
 
-		System.arraycopy(argsIn, 1, argsNoCommand, 0, argsNoCommand.length);
+		if (command[0].equals("cdcli")) {
+			String[] tmp = new String[command.length - 1];
+			System.arraycopy(command, 1, tmp, 0, command.length - 1);
+			command = tmp;
+		}
 
-		new CommandLine(new CDCLI()).execute();
+		/*
+		 * // Debug, pring args for (int i = 0; i < command.length; i++) {
+		 * System.out.println("    - " + command[i]); }
+		 */
+
+		new CommandLine(new CDCLI()).execute(command);
 	}
 
 	public static void clearConsole() {
