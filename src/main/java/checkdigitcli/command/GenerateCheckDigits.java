@@ -19,7 +19,7 @@ import checkdigitcli.main.CheckDigitCLIException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "generateCheckDigits")
+@Command(name = "generateCheckDigits", aliases = {"gcd"})
 public class GenerateCheckDigits implements Runnable {
 
 	@Option(names = { "-if", "-inputFile" }, required = false)
