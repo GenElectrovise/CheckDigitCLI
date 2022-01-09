@@ -1,25 +1,23 @@
 package checkdigitcli.command;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.aparapi.Kernel;
+
 import checkdigitcli.algorithm.Algorithm;
 import checkdigitcli.algorithm.Algorithms;
+import checkdigitcli.io.FileUtils;
 import checkdigitcli.main.CheckDigitCLIException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "generateCheckDigits", aliases = {"gcd"})
+@Command(name = "generateCheckDigits", aliases = { "gcd" })
 public class GenerateCheckDigits implements Runnable {
 
 	@Option(names = { "-if", "-inputFile" }, required = false)
@@ -36,7 +34,7 @@ public class GenerateCheckDigits implements Runnable {
 
 	public void run() {
 		try {
-			Algorithm algorithm = getAlgorithmInstance(algorithmName);
+			Algorithm algorithm = Algorithms.getAlgorithm(algorithmName);
 			Stream<String> payloads = collectPayloads(inputFile, manualPayloads);
 			String[][] digits = applyAlgorithm(algorithm, payloads);
 			displayResults(digits, outputFile);
@@ -55,47 +53,32 @@ public class GenerateCheckDigits implements Runnable {
 
 	private void displayResults(String[][] digits, File outputFile) throws IOException, InterruptedException {
 
+		String[] results = formatResults(digits);
+		
 		if (outputFile != null) {
-			printToOutputFile(digits, outputFile);
+			FileUtils.printOneLineResultsToOutputFile(results, outputFile);
 		} else {
-			printToConsole(digits, outputFile);
+			FileUtils.printOneLineResultsToConsole(results);
 		}
 
 	}
 
-	private void printToOutputFile(String[][] digits, File outputFile) throws IOException, InterruptedException {
-
-		System.out.println("Writing to output file " + outputFile.getAbsolutePath());
-		System.out.print("Progress: 0/" + digits.length);
+	private String[] formatResults(String[][] digits) {
 		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-			
-			writer.append("==START==" + System.lineSeparator());			
-			for (int i = 0; i < digits.length; i++) {
-				String payload = digits[i][0];
-				String digit = digits[i][1];
-
-				writer.append(payload + " " + digit + System.lineSeparator());
-				System.out.print("\rProgress: " + (i + 1) +  "/" + digits.length);
-			}
-			writer.append("==END==");
-			
-			writer.flush();
-			System.out.println("\nDone!");
-		}
-	}
-
-	private void printToConsole(String[][] digits, File outputFile) {
+		String[] out = new String[digits.length];
 		
-		System.out.println("Results:");
-		System.out.println("==START==");
 		for (int i = 0; i < digits.length; i++) {
-			String payload = digits[i][0];
-			String digit = digits[i][1];
-
-			System.out.println(payload + " " + digit);
+			
+			StringBuilder builder = new StringBuilder();
+			
+			for (int j = 0; j < digits[i].length; j++) {
+				builder.append(digits[i][j]);
+			}
+			
+			out[i] = builder.toString();
 		}
-		System.out.println("==END==");
+		
+		return out;
 	}
 
 	private String[][] applyAlgorithm(Algorithm algorithm, Stream<String> sPayloads) {
@@ -132,42 +115,22 @@ public class GenerateCheckDigits implements Runnable {
 		return digits;
 	}
 
-	private Algorithm getAlgorithmInstance(String algorithmName) throws CheckDigitCLIException {
-
-		// Check for algorithm internally
-		if (Algorithms.ALGORITHMS.containsKey(algorithmName)) {
-			Algorithm a = Algorithms.ALGORITHMS.get(algorithmName);
-			System.out.println("Using algorithm " + a.getClass().getSimpleName());
-			return a;
-		}
-
-		throw new CheckDigitCLIException("No algorithm with name " + algorithmName);
-	}
-
 	private Stream<String> collectPayloads(File inputFile, String[] manualPayloads)
 			throws IOException, CheckDigitCLIException {
 
-		Stream<String> filePayloads = Stream.empty();
-		if (inputFile != null)
-			filePayloads = getFilePayloads(inputFile).stream();
-
-		Stream<String> sManualPayloads = Stream.empty();
-		if (manualPayloads != null) {
-			sManualPayloads = Stream.of(manualPayloads);
-		}
+		Stream<String> filePayloads = FileUtils.getStreamOfLines(inputFile);
+		Stream<String> sManualPayloads = (manualPayloads != null ? Stream.of(manualPayloads) : Stream.empty());
 
 		return Stream.concat(filePayloads, sManualPayloads);
 	}
+	
+	public static class ResultCompressorKernel extends Kernel {
 
-	private List<String> getFilePayloads(File file) throws CheckDigitCLIException, FileNotFoundException, IOException {
-
-		if (!inputFile.exists())
-			throw new CheckDigitCLIException("Input file " + inputFile.getAbsolutePath() + " does not exist.");
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-			Stream<String> fileLines = reader.lines();
-			return fileLines.collect(Collectors.toList());
+		@Override
+		public void run() {
+			
 		}
+		
 	}
 
 }

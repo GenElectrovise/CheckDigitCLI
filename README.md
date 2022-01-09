@@ -9,7 +9,7 @@ A general utility CLI for dealing with check-digits.
 | `exit`	| `quit`, `terminate` | Halts the program. (console window remains open) |
 | `generateCheckDigits` | `gcd` | Given a list of alphanumeric payloads, generates a list of corresponding check-digits | 
 
-### generateCheckDigits
+#### generateCheckDigits
 
  - `-a/-algorithm, eg. -a=luhn (required)` specifies the check-digits algorithm to use. 
  - `-if/-inputFile, eg. -if=in.txt` is a file in which payloads can be found. 
