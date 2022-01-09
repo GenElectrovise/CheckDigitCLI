@@ -32,6 +32,7 @@ public class GenerateCheckDigits implements Runnable {
 	@Option(names = { "-a", "-algorithm" }, required = true)
 	private String algorithmName;
 
+	@Override
 	public void run() {
 		try {
 			Algorithm algorithm = Algorithms.getAlgorithm(algorithmName);
@@ -83,6 +84,8 @@ public class GenerateCheckDigits implements Runnable {
 
 	private String[][] applyAlgorithm(Algorithm algorithm, Stream<String> sPayloads) {
 
+		long start = System.nanoTime();
+		
 		List<String> lPayloads = sPayloads.collect(Collectors.toList());
 
 		// Generate preview
@@ -111,6 +114,8 @@ public class GenerateCheckDigits implements Runnable {
 			// 2 - [payload][check digit]
 			// ^ iterate this
 		}
+		
+		System.out.println(String.format("Took %dms to compute %d values", ((System.nanoTime() - start) / 1_000_000), lPayloads.size()));
 
 		return digits;
 	}
