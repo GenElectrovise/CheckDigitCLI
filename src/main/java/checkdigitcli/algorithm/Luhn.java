@@ -15,17 +15,17 @@ public class Luhn implements Algorithm {
 		String input3 = "34373957395";
 		byte[][] inputs = { input2.getBytes() }; // , input2.getBytes(), input3.getBytes() };
 
-		//System.out.println(new Luhn().generate(input1));
+		// System.out.println(new Luhn().generate(input1));
 		System.out.println(new Luhn().generate(input2));
-		//System.out.println(new Luhn().generate(input3));
+		// System.out.println(new Luhn().generate(input3));
 
 		LuhnKernel kernel = new LuhnKernel(inputs, new byte[inputs.length][]);
 		kernel.execute(10);
-		
+
 		for (byte[] bs : kernel.getOutputs()) {
 			System.out.println(Arrays.toString(bs));
 		}
-		
+
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class Luhn implements Algorithm {
 			 * Else (just one digit), put it straight away else { ints[index] =
 			 * Integer.valueOf(dChars[0]); }
 			 */
-			
+
 			// If there are two digits, put their sum
 			if (iDoubled >= 10) {
 				ints[index] = (byte) (1 + (iDoubled - 10));
@@ -136,12 +136,12 @@ public class Luhn implements Algorithm {
 			// Get the target array (the string as a byte[])
 			// This corresponds to the ID! (one core per input)
 			byte[] target = inputs[id];
-			
+
 			System.out.println(id + ": target=" + Arrays.toString(target));
 
 			// Generate digit
 			int digit = new Luhn().generate(new String(target, StandardCharsets.UTF_8));
-			
+
 			System.out.println(id + ": digit=" + digit);
 
 			// Store payload and check digit to outputs
@@ -149,7 +149,7 @@ public class Luhn implements Algorithm {
 			for (int i = 0; i < target.length; i++) {
 				temp[i] = target[i];
 			}
-			temp[temp.length - 1] = (byte) digit;
+			temp[temp.length - 1] = Character.toChars(digit)[0]; // Convert raw number (eg. '7') to its character (as a byte) and store back
 			outputs[id] = temp;
 			System.out.println(id + ": stored temp=" + Arrays.toString(temp));
 
