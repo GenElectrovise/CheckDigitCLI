@@ -2,7 +2,12 @@ package checkdigitcli.algorithm;
 
 public interface Algorithm {
 
-	int generate(String input);
+	/**
+	 * 
+	 * @param input The bytes of a UTF-8 string of digits to generate for
+	 * @return
+	 */
+	int generate(byte[] input);
 
 	String getName();
 }

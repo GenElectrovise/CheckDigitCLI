@@ -1,5 +1,6 @@
 package checkdigitcli.algorithm;
 
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -16,7 +17,7 @@ public class Luhn implements Algorithm {
 		byte[][] inputs = { input2.getBytes() }; // , input2.getBytes(), input3.getBytes() };
 
 		// System.out.println(new Luhn().generate(input1));
-		System.out.println(new Luhn().generate(input2));
+		System.out.println(new Luhn().generate(input2.getBytes()));
 		// System.out.println(new Luhn().generate(input3));
 
 		LuhnKernel kernel = new LuhnKernel(inputs, new byte[inputs.length][]);
@@ -34,7 +35,9 @@ public class Luhn implements Algorithm {
 	}
 
 	@Override
-	public int generate(String input) {
+	public int generate(byte[] inputBytes) {
+
+		String input = new String(inputBytes, StandardCharsets.UTF_8);
 
 		// Remove non numeric characters
 		input = input.replaceAll("\\D", "");
@@ -137,21 +140,25 @@ public class Luhn implements Algorithm {
 			// This corresponds to the ID! (one core per input)
 			byte[] target = inputs[id];
 
-			System.out.println(id + ": target=" + Arrays.toString(target));
+			// System.out.println(id + ": target=" + Arrays.toString(target));
 
 			// Generate digit
-			int digit = new Luhn().generate(new String(target, StandardCharsets.UTF_8));
+			int digit = new Luhn().generate(target);
 
-			System.out.println(id + ": digit=" + digit);
+			// System.out.println(id + ": digit=" + digit);
 
 			// Store payload and check digit to outputs
 			byte[] temp = new byte[target.length + 1];
 			for (int i = 0; i < target.length; i++) {
 				temp[i] = target[i];
 			}
-			temp[temp.length - 1] = Character.toChars(digit)[0]; // Convert raw number (eg. '7') to its character (as a byte) and store back
+
+			// Convert byte containing the number 7 to the string '7'
+			temp[temp.length - 1] = String.valueOf(digit).getBytes()[0]; // Convert raw number (eg. digit=7) to its character (as a byte) and store back
 			outputs[id] = temp;
-			System.out.println(id + ": stored temp=" + Arrays.toString(temp));
+			// System.out.println(id + ": stored temp=" + Arrays.toString(temp));
+			// System.out.println(id + ": temp str=" + new String(temp,
+			// StandardCharsets.UTF_8));
 
 		}
 
