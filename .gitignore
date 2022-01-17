@@ -1,5 +1,6 @@
 .git/
 .settings/
+.idea/
 target/
 .classpath
 .project
