@@ -1,2 +1,0 @@
-CheckDigitCLI must be run with access to a console.
-https://github.com/GenElectrovise/CheckDigitCLI

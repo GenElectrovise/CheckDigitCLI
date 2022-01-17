@@ -15,7 +15,7 @@
         <compilerSettings />
         <compilerArguments>
           <stringArguments>
-            <stringArg name="apiVersion" arg="1.5" />
+            <stringArg name="apiVersion" arg="1.6" />
             <stringArg name="languageVersion" arg="1.6" />
           </stringArguments>
           <arrayArguments>
@@ -40,8 +40,10 @@
     <orderEntry type="library" name="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER" level="application" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="library" name="Maven: info.picocli:picocli:4.6.2" level="project" />
-    <orderEntry type="library" name="Maven: com.aparapi:aparapi:1.9.0" level="project" />
-    <orderEntry type="library" name="Maven: com.aparapi:aparapi-jni:1.4.1" level="project" />
+    <orderEntry type="library" name="Maven: com.aparapi:aparapi:3.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.aparapi:aparapi-jni:1.4.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.bcel:bcel:6.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.13.6" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.6.10" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.6.10" level="project" />
