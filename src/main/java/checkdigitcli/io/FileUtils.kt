@@ -27,7 +27,7 @@ object FileUtils {
     @JvmStatic
     @Synchronized
     @Throws(IOException::class)
-    fun printOneLineResultsToOutputFile(contents: Array<String>, file: File) {
+    fun printOneLineResultsToOutputFile(contents: Array<String?>, file: File) {
         println("Writing to output file " + file.absolutePath)
         print("Progress: 0/" + contents.size)
         BufferedWriter(FileWriter(file)).use { writer ->

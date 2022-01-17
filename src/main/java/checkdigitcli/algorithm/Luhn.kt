@@ -72,12 +72,12 @@ class Luhn : Algorithm {
         return 10 - sum % 10
     }
 
-    class LuhnKernel(inputs: Array<ByteArray>, outputs: Array<ByteArray?>?) : Kernel() {
+    class LuhnKernel(inputs: Array<ByteArray?>, outputs: Array<ByteArray?>?) : Kernel() {
         // [0][s, t, r, i, n, g]
         // [1][s, t, r, i, n, g]
         // [2][s, t, r, i, n, g]
         // [3][s, t, r, i, n, g]
-        var inputs: Array<ByteArray>
+        var inputs: Array<ByteArray?>
         var outputs: Array<ByteArray?>
 
         /**
@@ -124,7 +124,7 @@ class Luhn : Algorithm {
             // System.out.println(id + ": digit=" + digit);
 
             // Store payload and check digit to outputs
-            val temp = ByteArray(target.size + 1)
+            val temp = ByteArray(target!!.size + 1)
             for (i in target.indices) {
                 temp[i] = target[i]
             }
@@ -145,7 +145,7 @@ class Luhn : Algorithm {
             val input1 = "7578527827894527894789237845785478923466434565689625896845686825682346824968"
             val input2 = "6"
             val input3 = "34373957395"
-            val inputs = arrayOf(input2.toByteArray()) // , input2.getBytes(), input3.getBytes() };
+            var inputs: Array<ByteArray?> = arrayOf(input2.toByteArray()) // , input2.getBytes(), input3.getBytes() };
 
             // System.out.println(new Luhn().generate(input1));
             println(Luhn().generate(input2.toByteArray()))

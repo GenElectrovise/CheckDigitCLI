@@ -20,7 +20,7 @@ class GenerateCheckDigits : Runnable {
     private val inputFile: File? = null
 
     @CommandLine.Option(names = ["-p", "-payloads"], required = false)
-    private val manualPayloads: Array<String>
+    private val manualPayloads: Array<String>? = null
 
     @CommandLine.Option(names = ["-of", "-outputFile"], required = false)
     private val outputFile: File? = null
@@ -32,7 +32,7 @@ class GenerateCheckDigits : Runnable {
     private val useKernel = false
     override fun run() {
         try {
-            val algorithm = Algorithms.getAlgorithm(algorithmName)
+            val algorithm = Algorithms.getAlgorithm(algorithmName!!)
             val payloads = collectPayloads(inputFile, manualPayloads)
             val digits = applyAlgorithm(algorithm, payloads)
             displayResults(digits, outputFile)
@@ -88,7 +88,7 @@ class GenerateCheckDigits : Runnable {
 
         // Apply algorithm to all
         // Create input/output arrays
-        val inputs = arrayOfNulls<ByteArray>(lPayloads.size) // Height=long, Width=2
+        var inputs: Array<ByteArray?> = arrayOfNulls<ByteArray>(lPayloads.size) // Height=long, Width=2
         var outputs = inputs.clone()
 
         /*
